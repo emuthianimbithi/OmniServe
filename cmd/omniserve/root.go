@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	Version    = "1.0.0" // Will be set at build time
+	Version    = "1.0.1" // Will be set at build time
 	configPath string
 )
 
