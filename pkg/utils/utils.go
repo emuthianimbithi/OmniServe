@@ -8,8 +8,12 @@ import (
 	"path/filepath"
 )
 
-//go:embed templates/*
-var templatesFS embed.FS
+var (
+	//go:embed templates/*
+	templatesFS embed.FS
+
+	Verbose bool
+)
 
 func IsValidLanguage(lang string) bool {
 	return variables.SupportedLanguages[lang]
@@ -17,6 +21,13 @@ func IsValidLanguage(lang string) bool {
 
 func GetDefaultEntryPoint(language string) string {
 	return variables.EntryPointTemplate[language]
+}
+
+// VerboseLog used to give more detailed output
+func VerboseLog(message string) {
+	if Verbose {
+		fmt.Fprintln(os.Stderr, "VERBOSE:", message)
+	}
 }
 
 func CreateEntryPointFile(projectPath, entryPoint, language string) error {
