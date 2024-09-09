@@ -1,187 +1,315 @@
-```markdown
-# OmniServe
+# OmniServe: Multi-Language Serverless CLI Tool
 
-OmniServe is a powerful multi-language serverless platform CLI tool that helps developers initialize, build, and manage serverless projects across various programming languages.
+OmniServe is a powerful, flexible, and user-friendly command-line interface (CLI) tool designed to streamline the development of serverless applications across multiple programming languages. It provides a unified workflow for initializing, building, and managing serverless projects, making it easier for developers to work with various cloud platforms and programming languages.
+
+## Table of Contents
+
+1. [Features](#features)
+2. [Installation](#installation)
+3. [Getting Started](#getting-started)
+4. [Command Reference](#command-reference)
+5. [Configuration](#configuration)
+6. [Templates](#templates)
+7. [Supported Languages](#supported-languages)
+8. [Extending OmniServe](#extending-omniserve)
+9. [Troubleshooting](#troubleshooting)
+10. [Contributing](#contributing)
 
 ## Features
 
-- Initialize new serverless projects
-- Support for multiple programming languages (Go, C, Python, JavaScript)
-- Customizable entry points
-- JSON-based project configuration
-- CLI configuration management
-- Git and Docker integration options
+OmniServe offers a rich set of features to enhance your serverless development experience:
+
+- **Multi-Language Support**: Initialize and manage projects in various programming languages, including Go, Python, JavaScript, C, Ruby, and more.
+- **Custom Templates**: Create, manage, and use custom project templates for each supported language, allowing you to standardize project structures across your team or organization.
+- **Flexible Configuration**: Easily configure project defaults, CLI behavior, and language-specific settings through a YAML configuration file.
+- **Extensible Language Support**: Add support for new programming languages without modifying the CLI's source code, simply by updating the configuration and providing appropriate templates.
+- **Project Initialization**: Quickly set up new serverless projects with proper structure, boilerplate code, and configuration files.
+- **Template Management**: Add, list, and use custom templates for project initialization, enabling you to tailor the initial project setup to your specific needs.
+- **Verbose Mode**: Get detailed output about CLI operations for better debugging and understanding of the tool's processes.
+- **Cross-Platform Compatibility**: OmniServe works seamlessly on Windows, macOS, and Linux.
+
+## Installation
 
 ### Prerequisites
 
-- Go 1.23 or later
+- Go 1.23 or later (for installation from source)
+- Git (optional, for version control integration)
 
 ### Using Go Install
 
 If you have Go installed on your system, you can install OmniServe directly from the source:
-```
+
 ```bash
 go install github.com/emuthianimbithi/OmniServe/cmd/omniserve@latest
 ```
 
 Make sure your Go bin directory is in your PATH.
 
+### Pre-built Binaries
 
-## Releases
+1. Navigate to the [Releases page](https://github.com/emuthianimbithi/OmniServe/releases) of the OmniServe repository.
+2. Download the appropriate binary for your operating system and architecture.
+3. Rename the binary to `omniserve` (or `omniserve.exe` on Windows).
+4. Move the binary to a directory in your system's PATH.
 
-You can download pre-compiled binaries for OmniServe from the [GitHub Releases page](https://github.com/emuthianimbithi/OmniServe/releases).
-
-### Latest Release
-
-- [Download for Linux (64-bit)](https://github.com/emuthianimbithi/OmniServe/releases/latest/download/omniserve-linux-amd64)
-- [Download for Windows (64-bit)](https://github.com/emuthianimbithi/OmniServe/releases/latest/download/omniserve-windows-amd64.exe)
-
-### Installation from Pre-compiled Binary
-
-1. Download the appropriate binary for your operating system from the links above.
-2. Rename the binary to `omniserve` (or `omniserve.exe` for Windows).
-3. Move the binary to a directory in your system's PATH.
-
-For Linux and macOS:
-```bash
-chmod +x ./omniserve-*-amd64
-sudo mv ./omniserve-*-amd64 /usr/local/bin/omniserve
-```
-### Building from Source
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/emuthianimbithi/OmniServe.git
-   cd OmniServe
-   ```
-
-2. Build the project:
-   ```bash
-   make build
-   ```
-
-3. (Optional) Install globally:
-   ```bash
-   make install
-   ```
-    This will install the `omniserve` binary in your Go bin directory.
-4. Run the CLI:
-   ```bash
-   omniserve [command] [flags]
-   ```
-
-## Usage
-
-After installation, you can use OmniServe from anywhere in your terminal:
+#### Linux and macOS
 
 ```bash
-omniserve [command] [flags]
+chmod +x ./omniserve
+sudo mv ./omniserve /usr/local/bin/omniserve
 ```
 
-### Available Commands
+#### Windows
 
-- `init`: Initialize a new serverless project
-- `config`: Manage OmniServe configuration
-- `version`: Print the version number of OmniServe
-- `info`: Print information about OmniServe
+Move the `omniserve.exe` file to a directory in your PATH, or add the directory containing the executable to your PATH environment variable.
+
+### Verifying the Installation
+
+To verify that OmniServe is installed correctly, open a new terminal window and run:
+
+```bash
+omniserve --version
+```
+
+This should display the version number of OmniServe.
+
+## Getting Started
+
+### Initializing Your First Project
+
+To create a new serverless project, use the `init` command:
+
+```bash
+omniserve init --name myproject --language go
+```
+
+This command will:
+1. Create a new directory named `myproject`.
+2. Generate a project structure based on the Go template.
+3. Create a `omniserve.json` file with project configuration.
+
+### Using Custom Templates
+
+OmniServe automatically uses custom templates if they exist. When you initialize a project, it first looks for a custom template for the specified language. If found, it uses that template; otherwise, it falls back to the built-in template.
+
+```bash
+omniserve init --name myproject --language go 
+```
+
+Make sure you've added the custom template first (see [Templates](#templates) section).
+
+### Building Your Project
+
+(Note: Implementation of the build command in future versions)
+
+To build your serverless project:
+
+```bash
+omniserve build
+```
+
+This command will compile your code and prepare it for deployment.
+
+### Deploying Your Project
+
+(Note: Implementation of the deployment command in future versions)
+
+To deploy your serverless project:
+
+```bash
+omniserve deploy
+```
+
+This command will package your project and deploy it to the configured serverless platform.
+
+## Command Reference
 
 ### Global Flags
 
 - `--verbose, -v`: Enable verbose output
 - `--config`: Specify a custom config file (default is $HOME/.omniserve.yaml)
 
-### Init Command
+### `omniserve init`
 
-Initialize a new serverless project:
+Initialize a new serverless project.
 
-```bash
-omniserve init --name myproject --language go
-```
-
-#### Init Command Options
-
+Flags:
 - `--name, -n`: Name of the project (required)
-- `--language, -l`: Programming language (go, c, python, javascript) (required)
+- `--language, -l`: Programming language (go, python, javascript, c, ruby, etc.) (required)
+- `--template, -t`: Name of the custom template to use (optional)
 - `--entry-point, -e`: Path to the entry point file (optional)
 - `--version`: Initial version of the project (default: "0.1.0")
 - `--author, -a`: Author of the project
 - `--description, -d`: Short description of the project
-- `--license`: License for the project (default: MIT)
+- `--license`: License for the project (default: EMM)
 - `--git-init, -g`: Initialize a git repository
 - `--dockerize, -D`: Add a Dockerfile to the project
 
-### Config Command
+### `omniserve template`
 
-Manage OmniServe configuration:
+Manage project templates.
 
+Subcommands:
+- `add`: Add a custom template
+- `list`: List all custom templates
+
+#### `omniserve template add`
+
+Add a custom template for a language.
+
+Usage:
 ```bash
-omniserve config init  # Initialize default configuration file
-omniserve config delete  # Delete the configuration file
+omniserve template add [language] [file]
 ```
 
-## Project Structure
+#### `omniserve template list`
 
-When you initialize a new project, OmniServe creates the following structure:
+List all custom templates.
 
+Usage:
+```bash
+omniserve template list
 ```
-myproject/
-├── omniserve.json
-└── [entry-point file]
-```
-
-- `omniserve.json`: Contains project configuration
-- Entry-point file: The main file for your serverless function (e.g., `main.go` for Go projects)
 
 ## Configuration
 
-OmniServe can be configured using a YAML file. By default, it looks for `~/.omniserve.yaml`.
+OmniServe uses a YAML configuration file to manage default settings and language-specific configurations. The default location for this file is `$HOME/.omniserve.yaml`.
 
-To generate a default configuration file:
+### Sample Configuration
 
-```bash
-omniserve config init
+```yaml
+defaults:
+  language: go
+  license: EMM
+  version: 0.1.0
+  author: Your Name
+  git_init: true
+  dockerize: false
+
+paths:
+  templates: ~/.omniserve/templates
+
+languages:
+  go:
+    entry_point: main.go
+    build_command: go build
+  python:
+    entry_point: main.py
+    build_command: python -m compileall
+  javascript:
+    entry_point: index.js
+    build_command: npm run build
+  ruby:
+    entry_point: app.rb
+    build_command: bundle install
+
+cli:
+  verbose: false
+  color_output: true
 ```
 
-This will create a configuration file with default values. You can then edit this file to customize OmniServe's behavior.
+### Configuration Options
 
-If no configuration file is found, OmniServe will use built-in default values.
+- `defaults`: Set default values for project initialization
+- `paths`: Configure paths for templates and other resources
+- `languages`: Define supported languages and their configurations
+- `cli`: Set CLI behavior options
 
-## Development
+## Templates
 
-To contribute to OmniServe, follow these steps:
+Templates are used to generate the initial structure and code for new projects. OmniServe supports both built-in and custom templates.
+
+### Template Location
+
+By default, custom templates are stored in `~/.omniserve/templates/`. You can change this location in the configuration file.
+
+### Custom Templates
+
+Custom templates should be text files, typically with the extension `.tmpl`. These templates are used as-is when initializing a new project. The content of the template will be copied directly into the new project's entry point file.
+
+Example Go template (`go.tmpl`):
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Welcome to Omniserve!")
+}
+```
+
+## Supported Languages
+
+OmniServe comes with built-in support for:
+
+- Go
+- Python
+- JavaScript
+- C
+
+You can add support for additional languages by updating your configuration file and providing appropriate templates.
+
+## Extending OmniServe
+
+### Adding Support for a New Language
+
+1. Update your `~/.omniserve.yaml` configuration file:
+
+```yaml
+languages:
+  newlang:
+    entry_point: main.newlang
+    build_command: newlang build
+```
+
+2. Create a template file for the new language:
+
+```bash
+omniserve template add newlang path/to/newlang_template.txt
+```
+
+3. Use the new language when initializing projects:
+
+```bash
+omniserve init --name mynewproject --language newlang
+```
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+1. **Template Not Found**
+   - Ensure the template exists in the configured templates directory
+   - Check the spelling of the language name
+   - Verify that you have read permissions for the template file
+
+2. **Configuration File Not Loaded**
+   - Check if `~/.omniserve.yaml` exists
+   - Use the `--config` flag to specify a custom configuration file location
+   - Ensure the YAML syntax in your configuration file is correct
+
+3. **Permission Denied Errors**
+   - Check file and directory permissions
+   - Ensure you have write access to the project directory
+   - Run the command with elevated privileges if necessary (use with caution)
+
+### Debugging
+
+Use the `--verbose` flag to get more detailed output:
+
+```bash
+omniserve --verbose init --name myproject --language go
+```
+
+This will provide additional information about each step of the process, which can be helpful in identifying issues.
+
+## Contributing
+
+We welcome contributions to OmniServe! Here's how you can help:
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## Cleaning up
-
-To remove the built binary:
-
-```bash
-make clean
-```
-
-## Future Enhancements
-
-- Implement `build` command for compiling projects
-- Add `deploy` functionality to upload projects to serverless platforms
-- Introduce `run` command for local testing
-- Add support for more languages and serverless platforms
-
-## License
-
-[Add your chosen license here]
-
-## Contact
-
-Emmanuel Muthiani Mbithi - [Your email or contact information]
-
-Project Link: [https://github.com/emuthianimbithi/OmniServe](https://github.com/emuthianimbithi/OmniServe)
-
-## Acknowledgments
-
-- [Cobra](https://github.com/spf13/cobra)
-- [Viper](https://github.com/spf13/viper)

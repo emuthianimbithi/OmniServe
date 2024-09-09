@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/models"
-	"github.com/emuthianimbithi/OmniServe/pkg/utils"
 	"os"
 	"path/filepath"
 
@@ -71,7 +70,6 @@ func LoadConfig(cfgFile string) error {
 		return err
 	}
 
-	utils.VerboseLog(fmt.Sprintf("Config loaded from %s", viper.ConfigFileUsed()))
 	return nil
 }
 

@@ -1,15 +1,15 @@
 package variables
 
-// SupportedLanguages map of supported languages
-var SupportedLanguages = map[string]bool{
+// DefaultSupportedLanguages  map of supported languages
+var DefaultSupportedLanguages = map[string]bool{
 	"go":         true,
 	"c":          true,
 	"python":     true,
 	"javascript": true,
 }
 
-// EntryPointTemplate map of entry point templates
-var EntryPointTemplate = map[string]string{
+// DefaultEntryPointTemplate  map of entry point templates
+var DefaultEntryPointTemplate = map[string]string{
 	"go":         "main.go",
 	"c":          "main.c",
 	"python":     "main.py",
