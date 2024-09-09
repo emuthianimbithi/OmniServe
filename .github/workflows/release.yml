@@ -42,7 +42,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
       # Upload Linux binary
       - name: Upload Linux binary
@@ -53,7 +53,7 @@ jobs:
           asset_name: omniserve-linux-amd64
           asset_content_type: application/octet-stream
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
       # Upload Windows binary
       - name: Upload Windows binary
@@ -64,4 +64,4 @@ jobs:
           asset_name: omniserve-windows-amd64.exe
           asset_content_type: application/octet-stream
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
