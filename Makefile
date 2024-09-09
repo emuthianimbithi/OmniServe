@@ -1,8 +1,23 @@
-VERSION ?= $(shell git describe --tags --abbrev=0)
+VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "dev")
 
 .PHONY: build
 build:
 	go build -ldflags "-X main.Version=$(VERSION)" -o omniserve ./cmd/omniserve
+
+.PHONY: build-all
+build-all: build-linux build-macos build-windows
+
+.PHONY: build-linux
+build-linux:
+	GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=$(VERSION)" -o omniserve-linux-amd64 ./cmd/omniserve
+
+.PHONY: build-macos
+build-macos:
+	GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.Version=$(VERSION)" -o omniserve-macos-amd64 ./cmd/omniserve
+
+.PHONY: build-windows
+build-windows:
+	GOOS=windows GOARCH=amd64 go build -ldflags "-X main.Version=$(VERSION)" -o omniserve-windows-amd64.exe ./cmd/omniserve
 
 .PHONY: install
 install: build
@@ -10,4 +25,4 @@ install: build
 
 .PHONY: clean
 clean:
-	rm -f omniserve
+	rm -f omniserve omniserve-linux-amd64 omniserve-macos-amd64 omniserve-windows-amd64.exe
