@@ -3,25 +3,18 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/emuthianimbithi/OmniServe/pkg/models"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
 	"os"
 	"path/filepath"
 )
 
-type ProjectConfig struct {
-	Name         string   `json:"name"`
-	Language     string   `json:"language"`
-	Version      string   `json:"version"`
-	EntryPoint   string   `json:"entryPoint"`
-	Dependencies []string `json:"dependencies,omitempty"`
-}
-
-func NewProjectConfig(projectPath, name, language, entryPoint string) (*ProjectConfig, error) {
+func NewProjectConfig(projectPath, name, language, entryPoint string) (*models.ProjectConfig, error) {
 	if entryPoint == "" {
 		entryPoint = utils.GetDefaultEntryPoint(language)
 	}
 
-	config := &ProjectConfig{
+	config := &models.ProjectConfig{
 		Name:       name,
 		Language:   language,
 		Version:    "0.1.0",
