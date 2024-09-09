@@ -12,8 +12,6 @@ OmniServe is a powerful multi-language serverless platform CLI tool that helps d
 - CLI configuration management
 - Git and Docker integration options
 
-## Installation
-
 ### Prerequisites
 
 - Go 1.23 or later
@@ -27,6 +25,28 @@ go install github.com/emuthianimbithi/OmniServe/cmd/omniserve@latest
 ```
 
 Make sure your Go bin directory is in your PATH.
+
+
+## Releases
+
+You can download pre-compiled binaries for OmniServe from the [GitHub Releases page](https://github.com/emuthianimbithi/OmniServe/releases).
+
+### Latest Release
+
+- [Download for Linux (64-bit)](https://github.com/emuthianimbithi/OmniServe/releases/latest/download/omniserve-linux-amd64)
+- [Download for macOS (64-bit)](https://github.com/emuthianimbithi/OmniServe/releases/latest/download/omniserve-macos-amd64)
+- [Download for Windows (64-bit)](https://github.com/emuthianimbithi/OmniServe/releases/latest/download/omniserve-windows-amd64.exe)
+
+### Installation from Pre-compiled Binary
+
+1. Download the appropriate binary for your operating system from the links above.
+2. Rename the binary to `omniserve` (or `omniserve.exe` for Windows).
+3. Move the binary to a directory in your system's PATH.
+
+For Linux and macOS:
+```bash
+chmod +x ./omniserve-*-amd64
+sudo mv ./omniserve-*-amd64 /usr/local/bin/omniserve
 
 ### Building from Source
 
@@ -44,6 +64,11 @@ Make sure your Go bin directory is in your PATH.
 3. (Optional) Install globally:
    ```bash
    make install
+   ```
+    This will install the `omniserve` binary in your Go bin directory.
+4. Run the CLI:
+   ```bash
+   omniserve [command] [flags]
    ```
 
 ## Usage
