@@ -16,9 +16,6 @@ var EntryPointTemplate = map[string]string{
 	"javascript": "main.js",
 }
 
-// Version of the application
-const Version = "0.1.0"
-
 const DefaultConfig = `# OmniServe CLI Configuration
 
 defaults:

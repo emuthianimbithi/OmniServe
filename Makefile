@@ -1,6 +1,8 @@
+VERSION ?= $(shell git describe --tags --abbrev=0)
+
 .PHONY: build
 build:
-	go build -o omniserve ./cmd/omniserve
+	go build -ldflags "-X main.Version=$(VERSION)" -o omniserve ./cmd/omniserve
 
 .PHONY: install
 install: build
