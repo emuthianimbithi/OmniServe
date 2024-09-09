@@ -19,7 +19,7 @@ func Handler(event json.RawMessage) (string, error) {
 
 func main() {
 	// For local testing
-	eventJSON := `{"name":"OminServe"}`
+	eventJSON := `{"name":"OmniServe"}`
 	result, err := Handler([]byte(eventJSON))
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)

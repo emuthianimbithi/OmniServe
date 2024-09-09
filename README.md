@@ -1,7 +1,7 @@
 ```markdown
 # OmniServe
 
-OminiServe is a multi-language serverless platform CLI tool that helps developers initialize, build, and manage serverless projects across various programming languages.
+OmniServe is a multi-language serverless platform CLI tool that helps developers initialize, build, and manage serverless projects across various programming languages.
 
 ## Features
 
@@ -14,11 +14,11 @@ OminiServe is a multi-language serverless platform CLI tool that helps developer
 
 ### Using Go Install
 
-If you have Go installed on your system, you can install OminServe directly from the source:
+If you have Go installed on your system, you can install OmniServe directly from the source:
 ```
 
 ```bash
-go install github.com/emuthianimbithi/OmniServe/cmd/ominiserve@latest
+go install github.com/emuthianimbithi/OmniServe/cmd/omniserve@latest
 ```
 
 Make sure your Go bin directory is in your PATH.
@@ -29,15 +29,15 @@ Make sure your Go bin directory is in your PATH.
 
 ## Usage
 
-After installation, you can use OminServe from anywhere in your terminal:
+After installation, you can use OmniServe from anywhere in your terminal:
 
 ```bash
-ominserve init --name myproject --language go
+omniserve init --name myproject --language go
 ```
 
 ### Commands
 
-Currently, OminServe supports the following command:
+Currently, OmniServe supports the following command:
 
 - `init`: Initialize a new serverless project
 
@@ -49,20 +49,20 @@ Currently, OminServe supports the following command:
 
 ## Project Structure
 
-When you initialize a new project, OminServe creates the following structure:
+When you initialize a new project, OmniServe creates the following structure:
 
 ```
 myproject/
-├── ominserve.json
+├── omniserve.json
 └── [entry-point file]
 ```
 
-- `ominserve.json`: Contains project configuration
+- `omniserve.json`: Contains project configuration
 - Entry-point file: The main file for your serverless function (e.g., `main.go` for Go projects)
 
 ## Development
 
-To contribute to OminServe, follow these steps:
+To contribute to OmniServe, follow these steps:
 
 1. Clone the repository
 2. Make your changes

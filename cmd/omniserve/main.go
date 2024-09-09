@@ -16,8 +16,8 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "ominserve",
-	Short: "OminServe - A multi-language serverless platform CLI",
+	Use:   "omniserve",
+	Short: "OmniServe - A multi-language serverless platform CLI",
 }
 
 var initCmd = &cobra.Command{
@@ -73,7 +73,7 @@ func runInit(cmd *cobra.Command, args []string) {
 	fmt.Printf("Successfully initialized %s project: %s\n", language, projectName)
 	fmt.Println("Next steps:")
 	fmt.Printf("1. cd %s\n", projectName)
-	fmt.Println("2. Edit ominiserve.json to add dependencies or modify configuration")
+	fmt.Println("2. Edit omniserve.json to add dependencies or modify configuration")
 	fmt.Printf("3. Implement your serverless function in %s\n", cfg.EntryPoint)
 }
 

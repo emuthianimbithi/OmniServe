@@ -28,7 +28,7 @@ func NewProjectConfig(projectPath, name, language, entryPoint string) (*ProjectC
 		EntryPoint: entryPoint,
 	}
 
-	configFile, err := os.Create(filepath.Join(projectPath, "ominiserve.json"))
+	configFile, err := os.Create(filepath.Join(projectPath, "omniserve.json"))
 	if err != nil {
 		return nil, fmt.Errorf("error creating config file: %v", err)
 	}
