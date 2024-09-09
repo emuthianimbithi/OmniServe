@@ -1,0 +1,16 @@
+import json
+
+def handler(event):
+    try:
+        event_data = json.loads(event)
+        return f"Hello, {event_data['name']}!"
+    except json.JSONDecodeError as e:
+        return f"Error decoding JSON: {str(e)}"
+    except KeyError:
+        return "Error: 'name' key not found in the event data"
+
+if __name__ == "__main__":
+    # For local testing
+    test_event = '{"name": "OminiServe"}'
+    result = handler(test_event)
+    print(result)

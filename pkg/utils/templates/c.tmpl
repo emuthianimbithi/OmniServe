@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <json-c/json.h>
+
+#define MAX_INPUT_SIZE 1024
+
+char* handler(const char* event) {
+    struct json_object *parsed_json;
+    struct json_object *name;
+
+    parsed_json = json_tokener_parse(event);
+    json_object_object_get_ex(parsed_json, "name", &name);
+
+    const char* name_str = json_object_get_string(name);
+
+    char* result = malloc(MAX_INPUT_SIZE);
+    snprintf(result, MAX_INPUT_SIZE, "Hello, %s!", name_str);
+
+    json_object_put(parsed_json);
+    return result;
+}
+
+int main() {
+    // For local testing
+    const char* event = "{\"name\":\"PolyCloud\"}";
+    char* result = handler(event);
+    printf("%s\n", result);
+    free(result);
+    return 0;
+}

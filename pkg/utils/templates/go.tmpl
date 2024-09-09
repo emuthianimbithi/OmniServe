@@ -1,0 +1,29 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type Event struct {
+	Name string `json:"name"`
+}
+
+func Handler(event json.RawMessage) (string, error) {
+	var e Event
+	if err := json.Unmarshal(event, &e); err != nil {
+		return "", fmt.Errorf("error unmarshalling event: %v", err)
+	}
+	return fmt.Sprintf("Hello, %s!", e.Name), nil
+}
+
+func main() {
+	// For local testing
+	eventJSON := `{"name":"OminServe"}`
+	result, err := Handler([]byte(eventJSON))
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+	fmt.Println(result)
+}

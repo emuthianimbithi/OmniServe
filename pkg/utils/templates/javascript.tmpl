@@ -1,0 +1,14 @@
+function handler(event) {
+    try {
+        const eventData = JSON.parse(event);
+        return `Hello, ${eventData.name}!`;
+    } catch (error) {
+        return `Error processing event: ${error.message}`;
+    }
+}
+
+// For local testing
+const testEvent = '{"name": "OminServe"}';
+console.log(handler(testEvent));
+
+module.exports = { handler };
