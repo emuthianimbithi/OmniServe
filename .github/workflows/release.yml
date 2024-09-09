@@ -9,45 +9,47 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      # Checkout the code
       - uses: actions/checkout@v2
+
+      # Set up Go environment
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.23
+
+      # Build binaries for Linux and Windows
       - name: Build
-        run: make build-all
+        run: make build-linux build-windows
+
+      # Create a GitHub release using WORKFLOW_TOKEN
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }} # Use WORKFLOW_TOKEN instead of GITHUB_TOKEN
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-      - name: Upload Release Assets - Linux
+
+      # Upload Linux binary
+      - name: Upload Linux Binary
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }} # Use WORKFLOW_TOKEN instead of GITHUB_TOKEN
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./omniserve-linux-amd64
           asset_name: omniserve-linux-amd64
           asset_content_type: application/octet-stream
-      - name: Upload Release Assets - macOS
+
+      # Upload Windows binary
+      - name: Upload Windows Binary
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./omniserve-macos-amd64
-          asset_name: omniserve-macos-amd64
-          asset_content_type: application/octet-stream
-      - name: Upload Release Assets - Windows
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }} # Use WORKFLOW_TOKEN instead of GITHUB_TOKEN
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./omniserve-windows-amd64.exe

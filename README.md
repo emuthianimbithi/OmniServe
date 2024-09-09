@@ -34,7 +34,6 @@ You can download pre-compiled binaries for OmniServe from the [GitHub Releases p
 ### Latest Release
 
 - [Download for Linux (64-bit)](https://github.com/emuthianimbithi/OmniServe/releases/latest/download/omniserve-linux-amd64)
-- [Download for macOS (64-bit)](https://github.com/emuthianimbithi/OmniServe/releases/latest/download/omniserve-macos-amd64)
 - [Download for Windows (64-bit)](https://github.com/emuthianimbithi/OmniServe/releases/latest/download/omniserve-windows-amd64.exe)
 
 ### Installation from Pre-compiled Binary
