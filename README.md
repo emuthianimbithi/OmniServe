@@ -46,7 +46,7 @@ For Linux and macOS:
 ```bash
 chmod +x ./omniserve-*-amd64
 sudo mv ./omniserve-*-amd64 /usr/local/bin/omniserve
-
+```
 ### Building from Source
 
 1. Clone the repository:
