@@ -1,5 +1,3 @@
-Certainly! Here's a README.md file that summarizes the project and its current state:
-
 ```markdown
 # OmniServe
 
@@ -17,6 +15,7 @@ OminiServe is a multi-language serverless platform CLI tool that helps developer
 ### Using Go Install
 
 If you have Go installed on your system, you can install OminServe directly from the source:
+```
 
 ```bash
 go install github.com/emuthianimbithi/OmniServe/cmd/ominiserve@latest
