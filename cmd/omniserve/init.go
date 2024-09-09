@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/config"
+	"github.com/emuthianimbithi/OmniServe/pkg/template"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
 	"github.com/spf13/cobra"
 	"os"
@@ -75,7 +76,7 @@ func runInit(cmd *cobra.Command, args []string) {
 	}
 
 	// Create entry point file
-	err = utils.CreateEntryPointFile(projectPath, cfg.EntryPoint, language)
+	err = template.CreateEntryPointFile(projectPath, cfg.EntryPoint, language)
 	if err != nil {
 		fmt.Printf("Error creating entry point file: %v\n", err)
 		return
