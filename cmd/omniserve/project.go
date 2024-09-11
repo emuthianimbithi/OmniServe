@@ -7,7 +7,6 @@ import (
 	"github.com/emuthianimbithi/OmniServe/pkg/stagedfiles"
 	"github.com/spf13/cobra"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -101,6 +100,7 @@ func contains(slice []string, item string) bool {
 	}
 	return false
 }
+
 func runPush(cmd *cobra.Command, args []string) {
 	stagedFiles, err := stagedfiles.LoadStagedFiles()
 	if err != nil {
@@ -129,29 +129,34 @@ func runPush(cmd *cobra.Command, args []string) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
-	// Add the project name
-	writer.WriteField("project", filepath.Base(getCurrentDir()))
+	// Add the project name (using current directory name as project name)
+	currentDir, _ := os.Getwd()
+	projectName := filepath.Base(currentDir)
+	writer.WriteField("project", projectName)
 
-	// Add each file to the multipart writer
-	for _, file := range stagedFiles {
-		part, err := writer.CreateFormFile("file", filepath.Base(file))
+	// Add each file to the form
+	for i, filePath := range stagedFiles {
+		file, err := os.Open(filePath)
 		if err != nil {
-			fmt.Printf("Error creating form file: %v\n", err)
-			return
+			fmt.Printf("Error opening file %s: %v\n", filePath, err)
+			continue
 		}
 
-		// Open and copy the file content
-		f, err := os.Open(file)
+		part, err := writer.CreateFormFile("file", filePath)
 		if err != nil {
-			fmt.Printf("Error opening file: %v\n", err)
-			return
+			fmt.Printf("Error creating form file for %s: %v\n", filePath, err)
+			file.Close()
+			continue
 		}
-		_, err = io.Copy(part, f)
-		f.Close()
+
+		_, err = io.Copy(part, file)
+		file.Close()
 		if err != nil {
-			fmt.Printf("Error copying file content: %v\n", err)
-			return
+			fmt.Printf("Error copying content of file %s: %v\n", filePath, err)
+			continue
 		}
+
+		fmt.Printf("Pushing file %d of %d: %s\n", i+1, len(stagedFiles), filePath)
 	}
 
 	writer.Close()
@@ -173,16 +178,17 @@ func runPush(cmd *cobra.Command, args []string) {
 	defer resp.Body.Close()
 
 	// Read and print the response
-	respBody, _ := ioutil.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(resp.Body)
 	fmt.Println(string(respBody))
 
 	// Clear staged files after successful push
 	err = stagedfiles.ClearStagedFiles()
 	if err != nil {
 		fmt.Printf("Error clearing staged files: %v\n", err)
+	} else {
+		fmt.Println("All staged files have been pushed and cleared.")
 	}
 }
-
 func runStatus(cmd *cobra.Command, args []string) {
 	stagedFiles, err := stagedfiles.LoadStagedFiles()
 	if err != nil {
