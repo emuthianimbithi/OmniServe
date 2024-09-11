@@ -49,13 +49,38 @@ func runAdd(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	if len(args) == 0 {
+		fmt.Println("Please specify files or directories to add, or use '.' for the current directory.")
+		return
+	}
+
 	for _, arg := range args {
-		absPath, err := filepath.Abs(arg)
-		if err != nil {
-			fmt.Printf("Error getting absolute path for %s: %v\n", arg, err)
-			continue
+		if arg == "." {
+			// Handle the special case of adding the current directory
+			arg, _ = os.Getwd()
 		}
-		stagedFiles = append(stagedFiles, absPath)
+
+		err := filepath.Walk(arg, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				fmt.Printf("Error accessing path %q: %v\n", path, err)
+				return err
+			}
+			if !info.IsDir() {
+				absPath, err := filepath.Abs(path)
+				if err != nil {
+					fmt.Printf("Error getting absolute path for %s: %v\n", path, err)
+					return nil
+				}
+				// Check if the file is already staged
+				if !contains(stagedFiles, absPath) {
+					stagedFiles = append(stagedFiles, absPath)
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			fmt.Printf("Error walking the path %q: %v\n", arg, err)
+		}
 	}
 
 	err = stagedfiles.SaveStagedFiles(stagedFiles)
@@ -64,9 +89,18 @@ func runAdd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Printf("Added %d files to be pushed\n", len(args))
+	fmt.Printf("Added %d files to be pushed\n", len(stagedFiles))
 }
 
+// Helper function to check if a slice contains a string
+func contains(slice []string, item string) bool {
+	for _, a := range slice {
+		if a == item {
+			return true
+		}
+	}
+	return false
+}
 func runPush(cmd *cobra.Command, args []string) {
 	stagedFiles, err := stagedfiles.LoadStagedFiles()
 	if err != nil {
