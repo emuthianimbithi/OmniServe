@@ -19,12 +19,8 @@ type CLIConfig struct {
 		BuildCommand string `mapstructure:"build_command"`
 	} `mapstructure:"languages"`
 
-	Aliases map[string]string `mapstructure:"aliases"`
-
 	CLI struct {
 		Verbose     bool `mapstructure:"verbose"`
 		ColorOutput bool `mapstructure:"color_output"`
 	} `mapstructure:"cli"`
-
-	CloudProviders map[string]map[string]string `mapstructure:"cloud_providers"`
 }

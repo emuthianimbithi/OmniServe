@@ -20,11 +20,44 @@ var defaultConfig = models.CLIConfig{
 		Dockerize bool   `mapstructure:"dockerize"`
 	}{
 		Language:  "go",
-		License:   "",
+		License:   "default",
 		Version:   "0.1.0",
-		Author:    "",
-		GitInit:   true,
-		Dockerize: true,
+		Author:    "default",
+		GitInit:   false,
+		Dockerize: false,
+	},
+	Paths: struct {
+		Templates string `mapstructure:"templates"`
+	}{
+		Templates: "~/.omniserve/templates",
+	},
+	Languages: map[string]struct {
+		EntryPoint   string `mapstructure:"entry_point"`
+		BuildCommand string `mapstructure:"build_command"`
+	}{
+		"go": {
+			EntryPoint:   "main.go",
+			BuildCommand: "go build",
+		},
+		"python": {
+			EntryPoint:   "main.py",
+			BuildCommand: "python -m compileall",
+		},
+		"javascript": {
+			EntryPoint:   "index.js",
+			BuildCommand: "npm run build",
+		},
+		"c": {
+			EntryPoint:   "main.c",
+			BuildCommand: "gcc -o main main.c",
+		},
+	},
+	CLI: struct {
+		Verbose     bool `mapstructure:"verbose"`
+		ColorOutput bool `mapstructure:"color_output"`
+	}{
+		Verbose:     false,
+		ColorOutput: true,
 	},
 }
 
