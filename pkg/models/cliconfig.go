@@ -23,4 +23,9 @@ type CLIConfig struct {
 		Verbose     bool `mapstructure:"verbose"`
 		ColorOutput bool `mapstructure:"color_output"`
 	} `mapstructure:"cli"`
+
+	Server struct {
+		Host string `mapstructure:"host"`
+		Port string `mapstructure:"port"`
+	} `mapstructure:"server"`
 }

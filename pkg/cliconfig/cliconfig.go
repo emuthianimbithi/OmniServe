@@ -59,6 +59,13 @@ var defaultConfig = models.CLIConfig{
 		Verbose:     false,
 		ColorOutput: true,
 	},
+	Server: struct {
+		Host string `mapstructure:"host"`
+		Port string `mapstructure:"port"`
+	}{
+		Host: "localhost",
+		Port: "8765",
+	},
 }
 
 var Config models.CLIConfig
