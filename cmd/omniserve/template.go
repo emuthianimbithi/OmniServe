@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/emuthianimbithi/OmniServe/pkg/template"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
 	"github.com/spf13/cobra"
@@ -74,6 +76,28 @@ func runAddTemplate(cmd *cobra.Command, args []string) {
 }
 
 func runListTemplates(cmd *cobra.Command, args []string) {
+	fmt.Println("Built-in templates:")
+	listBuiltInTemplates()
+
+	fmt.Println("\nCustom templates:")
+	listCustomTemplates()
+}
+
+func listBuiltInTemplates() {
+	entries, err := template.TemplatesFS.ReadDir("templates")
+	if err != nil {
+		fmt.Printf("Error reading built-in templates: %v\n", err)
+		return
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".tmpl") {
+			fmt.Printf("- %s\n", entry.Name())
+		}
+	}
+}
+
+func listCustomTemplates() {
 	templateDir := cliconfig.Config.Paths.Templates
 
 	// Expand the ~ to the home directory if present
@@ -86,26 +110,25 @@ func runListTemplates(cmd *cobra.Command, args []string) {
 		templateDir = filepath.Join(home, templateDir[2:])
 	}
 
-	utils.VerboseLog(fmt.Sprintf("Looking for templates in: %s\n", templateDir))
+	utils.VerboseLog(fmt.Sprintf("Looking for custom templates in: %s\n", templateDir))
 
 	// Check if the directory exists
 	if _, err := os.Stat(templateDir); os.IsNotExist(err) {
-		fmt.Printf("Template directory does not exist: %s\n", templateDir)
+		fmt.Printf("Custom template directory does not exist: %s\n", templateDir)
 		return
 	}
 
 	files, err := ioutil.ReadDir(templateDir)
 	if err != nil {
-		fmt.Printf("Error reading template directory: %v\n", err)
+		fmt.Printf("Error reading custom template directory: %v\n", err)
 		return
 	}
 
 	if len(files) == 0 {
-		fmt.Println("Template directory is empty. No templates found.")
+		fmt.Println("No custom templates found.")
 		return
 	}
 
-	fmt.Println("Custom templates:")
 	templateFound := false
 	for _, file := range files {
 		if filepath.Ext(file.Name()) == ".tmpl" {
@@ -115,6 +138,6 @@ func runListTemplates(cmd *cobra.Command, args []string) {
 	}
 
 	if !templateFound {
-		fmt.Println("No .tmpl files found in the template directory.")
+		fmt.Println("No custom .tmpl files found in the template directory.")
 	}
 }

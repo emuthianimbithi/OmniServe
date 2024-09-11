@@ -13,7 +13,7 @@ import (
 
 var (
 	//go:embed templates/*
-	templatesFS embed.FS
+	TemplatesFS embed.FS
 )
 
 func CreateEntryPointFile(projectPath, entryPoint, language string) error {
@@ -69,7 +69,7 @@ func getCustomTemplate(language string) (string, error) {
 
 func getBuiltInTemplate(language string) (string, error) {
 	templateFile := fmt.Sprintf("templates/%s.tmpl", language)
-	templateContent, err := templatesFS.ReadFile(templateFile)
+	templateContent, err := TemplatesFS.ReadFile(templateFile)
 	if err != nil {
 		return "", fmt.Errorf("error reading built-in template file: %v", err)
 	}
