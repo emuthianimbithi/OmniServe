@@ -24,7 +24,7 @@ var defaultConfig = models.CLIConfig{
 		Version:   "0.1.0",
 		Author:    "default",
 		GitInit:   false,
-		Dockerize: false,
+		Dockerize: true,
 	},
 	Paths: struct {
 		Templates string `mapstructure:"templates"`

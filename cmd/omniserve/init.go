@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
 	"github.com/emuthianimbithi/OmniServe/pkg/config"
+	"github.com/emuthianimbithi/OmniServe/pkg/docker"
 	"github.com/emuthianimbithi/OmniServe/pkg/template"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
 	"github.com/spf13/cobra"
@@ -80,6 +82,15 @@ func runInit(cmd *cobra.Command, args []string) {
 	if err != nil {
 		fmt.Printf("Error creating entry point file: %v\n", err)
 		return
+	}
+
+	// Create docker file
+	if cliconfig.CliConfig.Defaults.Dockerize {
+		fmt.Println("Creating Dockerfile")
+		err = docker.CreateDockerfile(projectPath, language, entryPoint)
+		if err != nil {
+			fmt.Printf("Error creating Dockerfile: %v\n", err)
+		}
 	}
 
 	fmt.Printf("Successfully initialized %s project: %s\n", language, projectName)

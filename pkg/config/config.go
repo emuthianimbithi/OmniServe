@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/models"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
+	"github.com/google/uuid"
 	"os"
 	"path/filepath"
 )
@@ -18,6 +19,7 @@ func NewProjectConfig(projectPath, name, language, entryPoint string) (*models.P
 
 	config := &models.ProjectConfig{
 		Name:       name,
+		Code:       uuid.New().String(),
 		Language:   language,
 		Version:    "0.1.0",
 		EntryPoint: entryPoint,

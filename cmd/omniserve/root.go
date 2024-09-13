@@ -9,15 +9,14 @@ import (
 )
 
 var (
-	Version    = "1.0.1" // Will be set at build time
+	Version    = "1.1.5" // Will be set at build time
 	configPath string
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "omniserve",
 	Short: "OmniServe - A multi-language serverless platform CLI",
-	Long: `OmniServe is a powerful CLI tool for creating and managing serverless projects across multiple programming languages.
-Complete documentation is available at https://github.com/emuthianimbithi/OmniServe`,
+	Long:  `OmniServe is a powerful CLI tool for creating and managing serverless projects across multiple programming languages.Complete documentation is available at https://github.com/emuthianimbithi/OmniServe`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Check if version flag is used
 		versionFlag, _ := cmd.Flags().GetBool("version")
@@ -34,7 +33,10 @@ Complete documentation is available at https://github.com/emuthianimbithi/OmniSe
 		}
 
 		// If no flags are used, print help
-		cmd.Help()
+		err := cmd.Help()
+		if err != nil {
+			return
+		}
 	},
 }
 
