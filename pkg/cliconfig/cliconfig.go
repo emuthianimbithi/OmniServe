@@ -68,7 +68,7 @@ var defaultConfig = models.CLIConfig{
 	},
 }
 
-var Config models.CLIConfig
+var CliConfig models.CLIConfig
 
 func LoadConfig(cfgFile string) error {
 
@@ -96,16 +96,16 @@ func LoadConfig(cfgFile string) error {
 		// Check if the error is a config file not found error
 		// If it is, use the default config
 		if errors.As(err, &configFileNotFoundError) {
-			// Config file not found; use defaults
-			Config = defaultConfig
+			// CliConfig file not found; use defaults
+			CliConfig = defaultConfig
 			return nil
 		}
-		// Config file was found but another error was produced
+		// CliConfig file was found but another error was produced
 		return err
 	}
 
-	// Config file found and successfully parsed
-	err := viper.Unmarshal(&Config)
+	// CliConfig file found and successfully parsed
+	err := viper.Unmarshal(&CliConfig)
 	if err != nil {
 		return err
 	}

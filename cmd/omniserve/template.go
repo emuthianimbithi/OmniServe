@@ -47,7 +47,7 @@ func runAddTemplate(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	templateDir := cliconfig.Config.Paths.Templates
+	templateDir := cliconfig.CliConfig.Paths.Templates
 
 	// Expand the ~ to the home directory if present
 	if templateDir[:2] == "~/" {
@@ -98,7 +98,7 @@ func listBuiltInTemplates() {
 }
 
 func listCustomTemplates() {
-	templateDir := cliconfig.Config.Paths.Templates
+	templateDir := cliconfig.CliConfig.Paths.Templates
 
 	// Expand the ~ to the home directory if present
 	if templateDir[:2] == "~/" {

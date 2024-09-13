@@ -1,15 +1,15 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
+	"github.com/spf13/cobra"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
-	"github.com/spf13/cobra"
+	"strings"
 )
 
 var serverCmd = &cobra.Command{
@@ -21,7 +21,7 @@ var startServerCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start the OmniServe server",
 	Run: func(cmd *cobra.Command, args []string) {
-		port := cliconfig.Config.Server.Port
+		port := cliconfig.CliConfig.Server.Port
 		if port == "" {
 			port = "8765"
 		}
@@ -72,7 +72,7 @@ func restartServer() error {
 	if err := stopServer(); err != nil {
 		return err
 	}
-	port := cliconfig.Config.Server.Port
+	port := cliconfig.CliConfig.Server.Port
 	if port == "" {
 		port = "8765"
 	}
@@ -85,54 +85,98 @@ func handlePush(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse the multipart form data
-	err := r.ParseMultipartForm(10 << 20) // 10 MB max memory
+	err := r.ParseMultipartForm(32 << 20) // 32MB max memory
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Get the project details
-	savedProject := r.FormValue("project")
-	if savedProject == "" {
+	projectName := r.FormValue("project")
+	if projectName == "" {
 		http.Error(w, "Project name is required", http.StatusBadRequest)
 		return
 	}
 
-	// Create the project directory if it doesn't exist
-	projectDir := filepath.Join("./projects", savedProject)
-	if err := os.MkdirAll(projectDir, os.ModePerm); err != nil {
+	projectDir := filepath.Join("./projects", projectName)
+
+	// Ensure the base project directory exists
+	if err := os.MkdirAll(projectDir, 0755); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Process each file in the form
-	for _, fileHeaders := range r.MultipartForm.File {
-		for _, fileHeader := range fileHeaders {
-			file, err := fileHeader.Open()
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			defer file.Close()
-
-			// Create the destination file
-			dst, err := os.Create(filepath.Join(projectDir, fileHeader.Filename))
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			defer dst.Close()
-
-			// Copy the uploaded file to the destination file
-			_, err = io.Copy(dst, file)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
+	// Iterate through the form data
+	for key, _ := range r.MultipartForm.File {
+		if !strings.HasPrefix(key, "file_") {
+			continue // Skip non-file fields
 		}
+
+		// Get the corresponding path
+		pathKey := key + "_path"
+		paths, exists := r.MultipartForm.Value[pathKey]
+		if !exists || len(paths) == 0 {
+			http.Error(w, fmt.Sprintf("Missing path for %s", key), http.StatusBadRequest)
+			return
+		}
+		relPath := paths[0]
+
+		// Get the file
+		files := r.MultipartForm.File[key]
+		if len(files) == 0 {
+			http.Error(w, fmt.Sprintf("Missing file for %s", key), http.StatusBadRequest)
+			return
+		}
+		fileHeader := files[0]
+
+		// Open the file
+		file, err := fileHeader.Open()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer func(file multipart.File) {
+			err := file.Close()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+		}(file)
+
+		// Construct the full path
+		fullPath := filepath.Join(projectDir, relPath)
+
+		// Ensure the relative path doesn't try to escape the project directory
+		if !strings.HasPrefix(filepath.Clean(fullPath), projectDir) {
+			http.Error(w, "Invalid file path", http.StatusBadRequest)
+			return
+		}
+
+		// Ensure necessary parent directories are created
+		if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Create and save the file
+		dst, err := os.Create(fullPath)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer func(dst *os.File) {
+			err := dst.Close()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+		}(dst)
+
+		if _, err := io.Copy(dst, file); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Printf("File saved: %s\n", fullPath)
 	}
 
-	response := map[string]string{"message": fmt.Sprintf("Files for project '%s' pushed successfully", savedProject)}
-	json.NewEncoder(w).Encode(response)
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Files for project '%s' pushed successfully", projectName)
 }

@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
+	"github.com/emuthianimbithi/OmniServe/pkg/config"
 	"github.com/emuthianimbithi/OmniServe/pkg/stagedfiles"
+	"github.com/emuthianimbithi/OmniServe/pkg/utils"
 	"github.com/spf13/cobra"
 	"io"
 	"mime/multipart"
@@ -42,6 +44,12 @@ func init() {
 }
 
 func runAdd(cmd *cobra.Command, args []string) {
+	err := utils.InitIgnoreList()
+	if err != nil {
+		fmt.Printf("Error initializing ignore list: %v\n", err)
+		return
+	}
+
 	stagedFiles, err := stagedfiles.LoadStagedFiles()
 	if err != nil {
 		fmt.Printf("Error loading staged files: %v\n", err)
@@ -53,10 +61,12 @@ func runAdd(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	addedFiles := 0
+	baseDir, _ := os.Getwd()
+
 	for _, arg := range args {
 		if arg == "." {
-			// Handle the special case of adding the current directory
-			arg, _ = os.Getwd()
+			arg = baseDir
 		}
 
 		err := filepath.Walk(arg, func(path string, info os.FileInfo, err error) error {
@@ -64,15 +74,17 @@ func runAdd(cmd *cobra.Command, args []string) {
 				fmt.Printf("Error accessing path %q: %v\n", path, err)
 				return err
 			}
-			if !info.IsDir() {
-				absPath, err := filepath.Abs(path)
-				if err != nil {
-					fmt.Printf("Error getting absolute path for %s: %v\n", path, err)
-					return nil
-				}
-				// Check if the file is already staged
-				if !contains(stagedFiles, absPath) {
-					stagedFiles = append(stagedFiles, absPath)
+
+			relPath, err := filepath.Rel(baseDir, path)
+			if err != nil {
+				fmt.Printf("Error getting relative path for %s: %v\n", path, err)
+				return nil
+			}
+
+			if !info.IsDir() && !utils.ShouldIgnore(relPath) {
+				if !contains(stagedFiles, relPath) {
+					stagedFiles = append(stagedFiles, relPath)
+					addedFiles++
 				}
 			}
 			return nil
@@ -88,7 +100,7 @@ func runAdd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Printf("Added %d files to be pushed\n", len(stagedFiles))
+	fmt.Printf("Added %d files to be pushed\n", addedFiles)
 }
 
 // Helper function to check if a slice contains a string
@@ -113,8 +125,8 @@ func runPush(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	serverHost := cliconfig.Config.Server.Host
-	serverPort := cliconfig.Config.Server.Port
+	serverHost := cliconfig.CliConfig.Server.Host
+	serverPort := cliconfig.CliConfig.Server.Port
 
 	if serverHost == "" {
 		serverHost = "localhost"
@@ -125,43 +137,71 @@ func runPush(cmd *cobra.Command, args []string) {
 
 	url := fmt.Sprintf("http://%s:%s/push", serverHost, serverPort)
 
-	// Create a new multipart writer
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
-	// Add the project name (using current directory name as project name)
 	currentDir, _ := os.Getwd()
-	projectName := filepath.Base(currentDir)
-	writer.WriteField("project", projectName)
+	// create an uuid for the project. this will be used to know what project to start
+	projectCode := config.ProjectConfig.Code
+	err = writer.WriteField("project", projectCode)
+	if err != nil {
+		return
+	}
 
-	// Add each file to the form
-	for i, filePath := range stagedFiles {
-		file, err := os.Open(filePath)
+	// Iterate through the staged files and send them with their full relative paths
+	for i, relPath := range stagedFiles {
+		absPath := filepath.Join(currentDir, relPath)
+
+		fileInfo, err := os.Stat(absPath)
 		if err != nil {
-			fmt.Printf("Error opening file %s: %v\n", filePath, err)
+			fmt.Printf("Error getting file info for %s: %v\n", absPath, err)
 			continue
 		}
 
-		part, err := writer.CreateFormFile("file", filePath)
+		if fileInfo.IsDir() {
+			fmt.Printf("Skipping directory: %s\n", absPath)
+			continue
+		}
+
+		file, err := os.Open(absPath)
 		if err != nil {
-			fmt.Printf("Error creating form file for %s: %v\n", filePath, err)
-			file.Close()
+			fmt.Printf("Error opening file %s: %v\n", absPath, err)
+			continue
+		}
+
+		// Create a unique key for this file
+		fileKey := fmt.Sprintf("file_%d", i)
+
+		// Add the file path as a separate form field
+		err = writer.WriteField(fmt.Sprintf("%s_path", fileKey), relPath)
+		if err != nil {
+			return
+		}
+
+		// Add the file content
+		part, err := writer.CreateFormFile(fileKey, filepath.Base(relPath))
+		if err != nil {
+			fmt.Printf("Error creating form file for %s: %v\n", relPath, err)
+			err = file.Close()
+			if err != nil {
+				return
+			}
 			continue
 		}
 
 		_, err = io.Copy(part, file)
-		file.Close()
+		err = file.Close()
 		if err != nil {
-			fmt.Printf("Error copying content of file %s: %v\n", filePath, err)
-			continue
+			return
 		}
 
-		fmt.Printf("Pushing file %d of %d: %s\n", i+1, len(stagedFiles), filePath)
+		fmt.Printf("Pushing file %d of %d: %s\n", i+1, len(stagedFiles), relPath)
+	}
+	err = writer.Close()
+	if err != nil {
+		return
 	}
 
-	writer.Close()
-
-	// Create and send the request
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
@@ -175,20 +215,26 @@ func runPush(cmd *cobra.Command, args []string) {
 		fmt.Printf("Error sending request: %v\n", err)
 		return
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Printf("Error closing response body: %v\n", err)
+		}
+	}(resp.Body)
 
-	// Read and print the response
 	respBody, _ := io.ReadAll(resp.Body)
 	fmt.Println(string(respBody))
 
-	// Clear staged files after successful push
 	err = stagedfiles.ClearStagedFiles()
 	if err != nil {
 		fmt.Printf("Error clearing staged files: %v\n", err)
 	} else {
 		fmt.Println("All staged files have been pushed and cleared.")
 	}
+
+	fmt.Println("Project saved. Your project unique code is: ", projectCode)
 }
+
 func runStatus(cmd *cobra.Command, args []string) {
 	stagedFiles, err := stagedfiles.LoadStagedFiles()
 	if err != nil {
@@ -204,13 +250,4 @@ func runStatus(cmd *cobra.Command, args []string) {
 			fmt.Println(file)
 		}
 	}
-}
-
-func getCurrentDir() string {
-	dir, err := os.Getwd()
-	if err != nil {
-		fmt.Printf("Error getting current directory: %v\n", err)
-		return ""
-	}
-	return dir
 }

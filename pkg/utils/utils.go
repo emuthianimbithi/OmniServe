@@ -4,21 +4,40 @@ import (
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
 	"github.com/emuthianimbithi/OmniServe/pkg/variables"
+	"github.com/sabhiram/go-gitignore"
 	"os"
 	"path/filepath"
 )
 
 var Verbose bool
 
+var ignoreList *ignore.GitIgnore
+
+func InitIgnoreList() error {
+	var err error
+	ignoreList, err = ignore.CompileIgnoreFile(".omniserve-ignore")
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return nil
+}
+
+func ShouldIgnore(path string) bool {
+	if ignoreList == nil {
+		return false
+	}
+	return ignoreList.MatchesPath(path)
+}
+
 func IsValidLanguage(lang string) bool {
-	if langConfig, exists := cliconfig.Config.Languages[lang]; exists {
+	if langConfig, exists := cliconfig.CliConfig.Languages[lang]; exists {
 		return langConfig.EntryPoint != ""
 	}
 	return variables.DefaultSupportedLanguages[lang]
 }
 
 func GetDefaultEntryPoint(language string) string {
-	if langConfig, exists := cliconfig.Config.Languages[language]; exists {
+	if langConfig, exists := cliconfig.CliConfig.Languages[language]; exists {
 		return langConfig.EntryPoint
 	}
 	return variables.DefaultEntryPointTemplate[language]

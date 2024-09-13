@@ -45,7 +45,7 @@ func GetTemplate(language string) (string, error) {
 }
 
 func getCustomTemplate(language string) (string, error) {
-	templateDir := cliconfig.Config.Paths.Templates
+	templateDir := cliconfig.CliConfig.Paths.Templates
 	if templateDir == "" {
 		return "", fmt.Errorf("template path not set in configuration")
 	}

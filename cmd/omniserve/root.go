@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
+	"github.com/emuthianimbithi/OmniServe/pkg/config"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -59,7 +60,9 @@ func printInfo() {
 }
 
 func initConfig() {
-	err := cliconfig.LoadConfig(configPath)
+	var err error
+	err = cliconfig.LoadConfig(configPath)
+	err = config.LoadProjectConfig(configPath)
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 	}

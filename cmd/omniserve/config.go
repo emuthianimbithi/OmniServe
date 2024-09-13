@@ -74,7 +74,7 @@ func runDeleteConfig(cmd *cobra.Command, args []string) {
 	configPath := cliconfig.GetConfigPath()
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		fmt.Println("Config file does not exist.")
+		fmt.Println("CliConfig file does not exist.")
 		return
 	}
 
@@ -92,5 +92,5 @@ func runDeleteConfig(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Println("Config file deleted successfully.")
+	fmt.Println("CliConfig file deleted successfully.")
 }
