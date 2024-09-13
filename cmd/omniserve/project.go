@@ -1,16 +1,16 @@
 package main
 
 import (
-	"bytes"
+	"context"
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
 	"github.com/emuthianimbithi/OmniServe/pkg/config"
+	"github.com/emuthianimbithi/OmniServe/pkg/pb/omniserve_proto"
 	"github.com/emuthianimbithi/OmniServe/pkg/stagedfiles"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
 	"github.com/spf13/cobra"
-	"io"
-	"mime/multipart"
-	"net/http"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -125,30 +125,17 @@ func runPush(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	serverHost := cliconfig.CliConfig.Server.Host
-	serverPort := cliconfig.CliConfig.Server.Port
+	conn := utils.GetGRPCConnection(cliconfig.CliConfig.Server.Host)
 
-	if serverHost == "" {
-		serverHost = "localhost"
+	client := omniserve_proto.NewOmniServeClient(conn.Conn)
+	stream, err := client.PushFiles(context.Background())
+	if err != nil {
+		log.Fatalf("Error creating stream: %v", err)
 	}
-	if serverPort == "" {
-		serverPort = "8765"
-	}
-
-	url := fmt.Sprintf("http://%s:%s/push", serverHost, serverPort)
-
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
 
 	currentDir, _ := os.Getwd()
-	// create an uuid for the project. this will be used to know what project to start
 	projectCode := config.ProjectConfig.Code
-	err = writer.WriteField("project", projectCode)
-	if err != nil {
-		return
-	}
 
-	// Iterate through the staged files and send them with their full relative paths
 	for i, relPath := range stagedFiles {
 		absPath := filepath.Join(currentDir, relPath)
 
@@ -163,67 +150,31 @@ func runPush(cmd *cobra.Command, args []string) {
 			continue
 		}
 
-		file, err := os.Open(absPath)
+		content, err := ioutil.ReadFile(absPath)
 		if err != nil {
-			fmt.Printf("Error opening file %s: %v\n", absPath, err)
+			fmt.Printf("Error reading file %s: %v\n", absPath, err)
 			continue
 		}
 
-		// Create a unique key for this file
-		fileKey := fmt.Sprintf("file_%d", i)
-
-		// Add the file path as a separate form field
-		err = writer.WriteField(fmt.Sprintf("%s_path", fileKey), relPath)
-		if err != nil {
-			return
+		chunk := &omniserve_proto.FileChunk{
+			ProjectCode: projectCode,
+			FilePath:    relPath,
+			Content:     content,
 		}
 
-		// Add the file content
-		part, err := writer.CreateFormFile(fileKey, filepath.Base(relPath))
-		if err != nil {
-			fmt.Printf("Error creating form file for %s: %v\n", relPath, err)
-			err = file.Close()
-			if err != nil {
-				return
-			}
-			continue
-		}
-
-		_, err = io.Copy(part, file)
-		err = file.Close()
-		if err != nil {
-			return
+		if err := stream.Send(chunk); err != nil {
+			log.Printf("Error sending chunk: %v\n", err)
 		}
 
 		fmt.Printf("Pushing file %d of %d: %s\n", i+1, len(stagedFiles), relPath)
 	}
-	err = writer.Close()
+
+	resp, err := stream.CloseAndRecv()
 	if err != nil {
-		return
+		log.Fatalf("Error receiving response: %v", err)
 	}
 
-	req, err := http.NewRequest("POST", url, body)
-	if err != nil {
-		fmt.Printf("Error creating request: %v\n", err)
-		return
-	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Printf("Error sending request: %v\n", err)
-		return
-	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Printf("Error closing response body: %v\n", err)
-		}
-	}(resp.Body)
-
-	respBody, _ := io.ReadAll(resp.Body)
-	fmt.Println(string(respBody))
+	fmt.Println(resp.Message)
 
 	err = stagedfiles.ClearStagedFiles()
 	if err != nil {

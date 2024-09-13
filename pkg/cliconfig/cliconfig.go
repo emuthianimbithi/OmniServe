@@ -63,7 +63,7 @@ var defaultConfig = models.CLIConfig{
 		Host string `mapstructure:"host"`
 		Port string `mapstructure:"port"`
 	}{
-		Host: "localhost",
+		Host: "0.0.0.0:8765",
 		Port: "8765",
 	},
 }

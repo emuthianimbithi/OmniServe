@@ -1,3 +1,5 @@
+export
+
 VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "dev")
 
 .PHONY: build
@@ -26,3 +28,9 @@ install: build
 .PHONY: clean
 clean:
 	rm -f omniserve omniserve-linux-amd64 omniserve-macos-amd64 omniserve-windows-amd64.exe
+
+proto:
+	 protoc --go_out=pkg/pb --go_opt=paths=source_relative \
+                    --go-grpc_out=pkg/pb --go-grpc_opt=paths=source_relative \
+                    -I=pkg/pb \
+                    pkg/pb/**/*.proto

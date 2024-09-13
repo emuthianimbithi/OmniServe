@@ -1,0 +1,39 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE files
+*.swp
+*.git/
+*.github/
+*.swo
+*.idea/
+*.vscode/
+*.exec
+
+# Compiled files
+*.class
+*.pyc
+*.pyo
+__pycache__/
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Log files
+*.log
+
+# Build directories
+build/
+dist/
+
+
+# Package files
+*.tar.gz
+*.zip
+pattern1
+pattern2
+pattern3
+*.testing
+

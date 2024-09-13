@@ -16,15 +16,14 @@ var DefaultEntryPointTemplate = map[string]string{
 	"javascript": "main.js",
 }
 
-const DefaultConfig = `# OmniServe CLI Configuration
-
+const DefaultConfig = `
 defaults:
   language: go
-  license: MIT
+  license: default
   version: 0.1.0
-  author: Your Name
-  git_init: true
-  dockerize: false
+  author: default
+  git_init: false
+  dockerize: true
 
 paths:
   templates: ~/.omniserve/templates
@@ -46,6 +45,10 @@ languages:
 cli:
   verbose: false
   color_output: true
+
+server:
+  host: 0.0.0.0:8765
+  port: 8765
 `
 
 var DefaultIgnorePatterns = []string{

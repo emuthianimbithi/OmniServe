@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package omniserve;
+
+option go_package = "github.com/emuthianimbithi/OmniServe/pkg/pb/omniserve_proto";
+
+service OmniServe {
+  rpc PushFiles(stream FileChunk) returns (PushResponse) {}
+}
+
+message FileChunk {
+  string project_code = 1;
+  string file_path = 2;
+  bytes content = 3;
+}
+
+message PushResponse {
+  string message = 1;
+}
