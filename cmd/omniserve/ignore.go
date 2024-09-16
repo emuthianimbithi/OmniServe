@@ -51,6 +51,8 @@ func init() {
 }
 
 func runIgnoreInit(cmd *cobra.Command, args []string) {
+	cmd.Print("Initializing ignore file\n.Number o")
+
 	utils.VerboseLog("Starting runIgnoreInit function")
 	utils.VerboseLog(fmt.Sprintf("Ignore file name: %s", ignoreFileName))
 

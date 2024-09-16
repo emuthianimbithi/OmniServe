@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/template"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -79,7 +78,7 @@ func runAddTemplate(cmd *cobra.Command, args []string) {
 
 	templatePath := filepath.Join(templateDir, fmt.Sprintf("%s.tmpl", language))
 	utils.VerboseLog(fmt.Sprintf("Writing template to: %s", templatePath))
-	if err := ioutil.WriteFile(templatePath, content, 0644); err != nil {
+	if err := os.WriteFile(templatePath, content, 0644); err != nil {
 		utils.VerboseLog(fmt.Sprintf("Error saving template: %v", err))
 		fmt.Printf("Error saving template: %v\n", err)
 		return
