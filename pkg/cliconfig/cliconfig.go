@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/models"
+	"github.com/emuthianimbithi/OmniServe/pkg/variables"
 	"os"
 	"path/filepath"
 
@@ -109,6 +110,8 @@ func LoadConfig(cfgFile string) error {
 	if err != nil {
 		return err
 	}
+
+	variables.Verbose = CliConfig.CLI.Verbose
 
 	return nil
 }

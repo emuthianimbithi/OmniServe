@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
 	"github.com/emuthianimbithi/OmniServe/pkg/config"
-	"github.com/emuthianimbithi/OmniServe/pkg/utils"
+	"github.com/emuthianimbithi/OmniServe/pkg/variables"
 	"github.com/spf13/cobra"
 )
 
@@ -42,7 +42,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().BoolVarP(&utils.Verbose, "verbose", "v", false, "enable verbose output")
+	rootCmd.PersistentFlags().BoolVarP(&variables.Verbose, "verbose", "v", false, "enable verbose output")
 	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "config file (default is $HOME/.omniserve.yaml)")
 	rootCmd.Flags().Bool("version", false, "print the version number of OmniServe")
 	rootCmd.Flags().Bool("info", false, "print information about OmniServe")

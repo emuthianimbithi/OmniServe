@@ -16,6 +16,8 @@ var DefaultEntryPointTemplate = map[string]string{
 	"javascript": "main.js",
 }
 
+var Verbose bool
+
 const DefaultConfig = `
 defaults:
   language: go

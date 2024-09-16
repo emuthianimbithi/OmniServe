@@ -15,8 +15,6 @@ import (
 	"strings"
 )
 
-var Verbose bool
-
 var ignoreList *ignore.GitIgnore
 
 func InitIgnoreList() error {
@@ -51,7 +49,7 @@ func GetDefaultEntryPoint(language string) string {
 
 // VerboseLog used to give more detailed output
 func VerboseLog(message string) {
-	if Verbose {
+	if variables.Verbose {
 		_, err := fmt.Fprintln(os.Stderr, "VERBOSE:", message)
 		if err != nil {
 			return
