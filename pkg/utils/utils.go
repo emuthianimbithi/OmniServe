@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -53,32 +52,11 @@ func GetDefaultEntryPoint(language string) string {
 // VerboseLog used to give more detailed output
 func VerboseLog(message string) {
 	if Verbose {
-		fmt.Fprintln(os.Stderr, "VERBOSE:", message)
-	}
-}
-func GetAllFiles(dir string) ([]string, error) {
-	var files []string
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		_, err := fmt.Fprintln(os.Stderr, "VERBOSE:", message)
 		if err != nil {
-			return err
+			return
 		}
-		if !info.IsDir() {
-			files = append(files, path)
-		}
-		return nil
-	})
-	return files, err
-}
-
-func GetFiles(path string) ([]string, error) {
-	info, err := os.Stat(path)
-	if err != nil {
-		return nil, err
 	}
-	if !info.IsDir() {
-		return []string{path}, nil
-	}
-	return GetAllFiles(path)
 }
 
 type ExternalGRPCConnectionResponse struct {
@@ -88,66 +66,73 @@ type ExternalGRPCConnectionResponse struct {
 }
 
 func GetGRPCConnection(target string) ExternalGRPCConnectionResponse {
-	// Check if the connection should be insecure
-	_insecure := strings.Contains(target, "localhost") || strings.Contains(target, "0.0.0.0")
+	VerboseLog(fmt.Sprintf("Starting GetGRPCConnection with target: %s", target))
+
+	isInsecure := strings.Contains(target, "localhost") || strings.Contains(target, "0.0.0.0") || strings.Contains(target, "ngrok.io")
+	VerboseLog(fmt.Sprintf("Connection is insecure: %v", isInsecure))
 
 	// Remove the 'https://' or 'http://' prefix if present
-	if strings.HasPrefix(target, "https://") {
-		target = strings.TrimPrefix(target, "https://")
-	} else if strings.HasPrefix(target, "http://") {
-		target = strings.TrimPrefix(target, "http://")
-	}
+	target = strings.TrimPrefix(strings.TrimPrefix(target, "https://"), "http://")
+	VerboseLog(fmt.Sprintf("Target after prefix removal: %s", target))
 
-	// Ensure the target contains a port
+	// Only add default port if there isn't one already
 	if !strings.Contains(target, ":") {
-		target = target + ":443"
+		target += ":443"
+		VerboseLog("Default port :443 added to target")
 	}
 
 	fmt.Println("Attempting to connect to:", target)
-
-	var conn *grpc.ClientConn
-	var err error
+	VerboseLog(fmt.Sprintf("Final target for connection: %s", target))
 
 	maxMsgSize := 1024 * 1024 * 1024 // 1GB
+	VerboseLog(fmt.Sprintf("Setting max message size to %d bytes", maxMsgSize))
 
-	// Create gRPC connection with appropriate credentials
-	if _insecure {
-		// For insecure connections (e.g., localhost), use insecure credentials
-		conn, err = grpc.Dial(target,
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMsgSize)),
-			grpc.WithReadBufferSize(maxMsgSize),
-			grpc.WithWriteBufferSize(maxMsgSize),
-			grpc.WithInitialWindowSize(int32(maxMsgSize)),
-			grpc.WithInitialConnWindowSize(int32(maxMsgSize)))
+	dialOptions := []grpc.DialOption{
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMsgSize)),
+		grpc.WithReadBufferSize(maxMsgSize),
+		grpc.WithWriteBufferSize(maxMsgSize),
+		grpc.WithInitialWindowSize(int32(maxMsgSize)),
+		grpc.WithInitialConnWindowSize(int32(maxMsgSize)),
+	}
+	VerboseLog("Basic dial options set")
+
+	if isInsecure {
+		dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		VerboseLog("Using insecure credentials")
 	} else {
-		// For secure connections, use TLS credentials
-		systemRoots, sysErr := x509.SystemCertPool()
-		if sysErr != nil {
+		VerboseLog("Attempting to use secure credentials")
+		systemRoots, err := x509.SystemCertPool()
+		if err != nil {
+			errMsg := fmt.Sprintf("Error fetching system root certificates: %v", err)
+			VerboseLog(errMsg)
 			return ExternalGRPCConnectionResponse{
 				Status: http.StatusInternalServerError,
-				Error:  "Error fetching system root certificates: " + sysErr.Error(),
+				Error:  errMsg,
 			}
 		}
+		VerboseLog("System root certificates fetched successfully")
+
 		cred := credentials.NewTLS(&tls.Config{
-			RootCAs: systemRoots,
+			RootCAs:            systemRoots,
+			InsecureSkipVerify: strings.Contains(target, "ngrok.io"),
 		})
-		conn, err = grpc.Dial(target,
-			grpc.WithTransportCredentials(cred),
-			grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMsgSize)),
-			grpc.WithReadBufferSize(maxMsgSize),
-			grpc.WithWriteBufferSize(maxMsgSize),
-			grpc.WithInitialWindowSize(int32(maxMsgSize)),
-			grpc.WithInitialConnWindowSize(int32(maxMsgSize)))
+		dialOptions = append(dialOptions, grpc.WithTransportCredentials(cred))
+		VerboseLog(fmt.Sprintf("TLS credentials created. InsecureSkipVerify: %v", strings.Contains(target, "ngrok.io")))
 	}
 
+	VerboseLog("Attempting to establish gRPC connection")
+	conn, err := grpc.Dial(target, dialOptions...)
 	if err != nil {
+		errMsg := fmt.Sprintf("Error connecting to gRPC server: %v", err)
+		VerboseLog(errMsg)
 		return ExternalGRPCConnectionResponse{
 			Status: http.StatusInternalServerError,
-			Error:  "Error connecting to gRPC server: " + err.Error(),
+			Error:  errMsg,
 		}
 	}
+	VerboseLog("gRPC connection established successfully")
 
+	VerboseLog("Returning successful ExternalGRPCConnectionResponse")
 	return ExternalGRPCConnectionResponse{
 		Status: http.StatusOK,
 		Conn:   conn,

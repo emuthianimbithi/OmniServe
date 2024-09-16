@@ -11,6 +11,8 @@ Thumbs.db
 *.vscode/
 *.exec
 
+o
+
 # Compiled files
 *.class
 *.pyc
