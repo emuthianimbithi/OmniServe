@@ -139,7 +139,10 @@ func (s *server) PushFiles(stream omniserve_proto.OmniServe_PushFilesServer) err
 		_, err = f.Write(chunk.Content)
 		if err != nil {
 			utils.VerboseLog(fmt.Sprintf("Failed to write file content: %v", err))
-			f.Close()
+			err := f.Close()
+			if err != nil {
+				return err
+			}
 			return fmt.Errorf("failed to write file: %v", err)
 		}
 
@@ -174,7 +177,12 @@ func runServerStatus(cmd *cobra.Command, args []string) {
 		return
 	}
 	utils.VerboseLog("Successfully established gRPC connection")
-	defer conn.Conn.Close()
+	defer func(Conn *grpc.ClientConn) {
+		err := Conn.Close()
+		if err != nil {
+			utils.VerboseLog(fmt.Sprintf("Failed to close connection: %v", err))
+		}
+	}(conn.Conn)
 
 	// Use the context when checking the connection
 	utils.VerboseLog("Getting initial connection state")

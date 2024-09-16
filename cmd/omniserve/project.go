@@ -9,15 +9,14 @@ import (
 	"github.com/emuthianimbithi/OmniServe/pkg/stagedfiles"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 )
 
-var (
-	stagedFiles []string
-)
+//var (
+//	stagedFiles []string
+//)
 
 var statusCmd = &cobra.Command{
 	Use:   "status",
@@ -188,7 +187,7 @@ func runPush(cmd *cobra.Command, args []string) {
 		}
 
 		utils.VerboseLog(fmt.Sprintf("Reading file: %s", absPath))
-		content, err := ioutil.ReadFile(absPath)
+		content, err := os.ReadFile(absPath)
 		if err != nil {
 			utils.VerboseLog(fmt.Sprintf("Error reading file %s: %v", absPath, err))
 			fmt.Printf("Error reading file %s: %v\n", absPath, err)

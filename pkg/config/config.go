@@ -38,7 +38,12 @@ func NewProjectConfig(projectPath, name, language, entryPoint string) (*models.P
 		utils.VerboseLog(fmt.Sprintf("Error creating config file: %v", err))
 		return nil, fmt.Errorf("error creating config file: %v", err)
 	}
-	defer configFile.Close()
+	defer func(configFile *os.File) {
+		err := configFile.Close()
+		if err != nil {
+			utils.VerboseLog(fmt.Sprintf("Error closing config file: %v", err))
+		}
+	}(configFile)
 
 	utils.VerboseLog("Encoding config to JSON")
 	encoder := json.NewEncoder(configFile)
@@ -73,7 +78,12 @@ func LoadProjectConfig(projectPath string) error {
 		utils.VerboseLog(fmt.Sprintf("Error opening config file: %v", err))
 		return fmt.Errorf("error opening config file: %v", err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			utils.VerboseLog(fmt.Sprintf("Error closing config file: %v", err))
+		}
+	}(file)
 
 	// Decode the JSON into a ProjectConfig struct
 	utils.VerboseLog("Decoding JSON into ProjectConfig struct")

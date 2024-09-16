@@ -45,7 +45,7 @@ func runAddTemplate(cmd *cobra.Command, args []string) {
 	filePath := args[1]
 
 	utils.VerboseLog(fmt.Sprintf("Reading template file: %s", filePath))
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		utils.VerboseLog(fmt.Sprintf("Error reading template file: %v", err))
 		fmt.Printf("Error reading template file: %v\n", err)
@@ -153,7 +153,7 @@ func listCustomTemplates() {
 	}
 
 	utils.VerboseLog("Reading custom template directory")
-	files, err := ioutil.ReadDir(templateDir)
+	files, err := os.ReadDir(templateDir)
 	if err != nil {
 		utils.VerboseLog(fmt.Sprintf("Error reading custom template directory: %v", err))
 		fmt.Printf("Error reading custom template directory: %v\n", err)

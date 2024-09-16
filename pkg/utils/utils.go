@@ -121,7 +121,7 @@ func GetGRPCConnection(target string) ExternalGRPCConnectionResponse {
 	}
 
 	VerboseLog("Attempting to establish gRPC connection")
-	conn, err := grpc.Dial(target, dialOptions...)
+	conn, err := grpc.NewClient(target, dialOptions...)
 	if err != nil {
 		errMsg := fmt.Sprintf("Error connecting to gRPC server: %v", err)
 		VerboseLog(errMsg)

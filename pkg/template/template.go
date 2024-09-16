@@ -4,7 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -28,7 +27,7 @@ func CreateEntryPointFile(projectPath, entryPoint, language string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(fullPath, []byte(template), 0644)
+	return os.WriteFile(fullPath, []byte(template), 0644)
 }
 
 func GetTemplate(language string) (string, error) {
@@ -60,7 +59,7 @@ func getCustomTemplate(language string) (string, error) {
 	}
 
 	customTemplatePath := filepath.Join(templateDir, fmt.Sprintf("%s.tmpl", language))
-	content, err := ioutil.ReadFile(customTemplatePath)
+	content, err := os.ReadFile(customTemplatePath)
 	if err != nil {
 		return "", err
 	}
