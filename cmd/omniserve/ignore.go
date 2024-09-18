@@ -51,6 +51,7 @@ func init() {
 }
 
 func runIgnoreInit(cmd *cobra.Command, args []string) {
+	InitProjectConfig()
 	cmd.Print("Initializing ignore file\n.Number o")
 
 	utils.VerboseLog("Starting runIgnoreInit function")
@@ -98,6 +99,7 @@ func runIgnoreInit(cmd *cobra.Command, args []string) {
 }
 
 func runIgnoreAdd(cmd *cobra.Command, args []string) {
+	InitProjectConfig()
 	utils.VerboseLog("Starting runIgnoreAdd function")
 	utils.VerboseLog(fmt.Sprintf("Ignore file name: %s", ignoreFileName))
 
@@ -130,6 +132,7 @@ func runIgnoreAdd(cmd *cobra.Command, args []string) {
 }
 
 func runIgnoreList(cmd *cobra.Command, args []string) {
+	InitProjectConfig()
 	utils.VerboseLog("Starting runIgnoreList function")
 	utils.VerboseLog(fmt.Sprintf("Ignore file name: %s", ignoreFileName))
 

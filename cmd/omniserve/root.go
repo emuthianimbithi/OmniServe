@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	Version    = "1.1.5" // Will be set at build time
+	Version    = "1.1.8" // Will be set at build time
 	configPath string
 )
 
@@ -69,8 +69,10 @@ func initConfig() {
 		fmt.Printf("Error loading config: %v\n", err)
 		fmt.Printf("Run 'omniserve config init' to create a new configuration file.\n")
 	}
+}
 
-	err = config.LoadProjectConfig(configPath)
+func InitProjectConfig() {
+	err := config.LoadProjectConfig(configPath)
 	if err != nil {
 		fmt.Printf("Error loading project config: %v\n", err)
 		fmt.Printf("Run 'omniserve init --name {myproject} --language {lang}' to create a new project.\n")

@@ -43,6 +43,7 @@ func init() {
 }
 
 func runAdd(cmd *cobra.Command, args []string) {
+	InitProjectConfig()
 	utils.VerboseLog("Starting runAdd function")
 
 	utils.VerboseLog("Initializing ignore list")
@@ -137,6 +138,7 @@ func contains(slice []string, item string) bool {
 }
 
 func runPush(cmd *cobra.Command, args []string) {
+	InitProjectConfig()
 	utils.VerboseLog("Starting runPush function")
 
 	utils.VerboseLog("Loading staged files")
@@ -234,6 +236,7 @@ func runPush(cmd *cobra.Command, args []string) {
 }
 
 func runStatus(cmd *cobra.Command, args []string) {
+	InitProjectConfig()
 	utils.VerboseLog("Starting runStatus function")
 
 	utils.VerboseLog("Loading staged files")
