@@ -11,8 +11,6 @@ Thumbs.db
 *.vscode/
 *.exec
 
-o
-
 # Compiled files
 *.class
 *.pyc
@@ -34,8 +32,3 @@ dist/
 # Package files
 *.tar.gz
 *.zip
-pattern1
-pattern2
-pattern3
-*.testing
-

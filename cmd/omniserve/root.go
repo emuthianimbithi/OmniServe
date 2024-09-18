@@ -6,6 +6,7 @@ import (
 	"github.com/emuthianimbithi/OmniServe/pkg/config"
 	"github.com/emuthianimbithi/OmniServe/pkg/variables"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var (
@@ -64,8 +65,15 @@ func printInfo() {
 func initConfig() {
 	var err error
 	err = cliconfig.LoadConfig(configPath)
-	err = config.LoadProjectConfig(configPath)
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
+		fmt.Printf("Run 'omniserve config init' to create a new configuration file.\n")
+	}
+
+	err = config.LoadProjectConfig(configPath)
+	if err != nil {
+		fmt.Printf("Error loading project config: %v\n", err)
+		fmt.Printf("Run 'omniserve init --name {myproject} --language {lang}' to create a new project.\n")
+		os.Exit(1)
 	}
 }
