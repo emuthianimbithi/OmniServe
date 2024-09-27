@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/emuthianimbithi/OmniServe/pkg/cliconfig"
+	"github.com/emuthianimbithi/OmniServe/pkg/config"
 	"github.com/emuthianimbithi/OmniServe/pkg/pb/omniserve_proto"
 	"github.com/emuthianimbithi/OmniServe/pkg/stagedfiles"
 	"github.com/emuthianimbithi/OmniServe/pkg/utils"
-	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -168,7 +168,7 @@ func runPush(cmd *cobra.Command, args []string) {
 	}
 
 	currentDir, _ := os.Getwd()
-	projectCode := uuid.New().String()
+	projectCode := config.ProjectConfig.Code
 	utils.VerboseLog(fmt.Sprintf("Current directory: %s, Project code: %s", currentDir, projectCode))
 
 	for i, relPath := range stagedFiles {
